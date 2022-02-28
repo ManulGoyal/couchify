@@ -27,7 +27,7 @@ abstract class Query {
     // return ResultSet();
   }
 
-  static Future<int> getValue() async {
-    return await CouchbaseLiteWrapper().getValue();
-  }
+  // static Future<int> getValue() async {
+  //   return await CouchbaseLiteWrapper().getValue();
+  // }
 }
