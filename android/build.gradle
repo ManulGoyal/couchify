@@ -1,0 +1,40 @@
+group 'com.manul.couchify'
+version '1.0'
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.3.0-alpha01'
+    }
+}
+
+rootProject.allprojects {
+    repositories {
+        maven { url 'https://mobile.maven.couchbase.com/maven2/dev/' }
+        google()
+        mavenCentral()
+    }
+}
+
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 30
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        minSdkVersion 19
+    }
+}
+
+dependencies {
+    implementation "com.couchbase.lite:couchbase-lite-android-ee:2.8.5"
+}
