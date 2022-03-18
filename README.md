@@ -8,7 +8,7 @@ Currently the plugin only supports Android and is not available for iOS.
 ## Getting Started
 
 1. Depend on it:
-```
+```yaml
 dependencies:
   couchify: ^0.1.0
 ```
@@ -31,7 +31,7 @@ android {
 3. Add the `xmlns:tools` namespace to the `manifest` element in the `AndroidManifest.xml`
    file (generally found at `android/src/main/AndroidManifest.xml`). Also add the `tools:replace`
    attribute to the `application` element directly below the `manifest` element, as shown below:
-```
+```xml
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"      <----
     package=...>
@@ -43,13 +43,13 @@ android {
 ```
 
 4. Import the module in the desired dart file and you are ready to go:
-```
+```dart
 import 'package:couchify/couchify.dart';
 ```
 
 ## Example Usage
 
-```
+```dart
 // initialize Couchbase Lite
 await CouchbaseLite.init();
 
@@ -129,7 +129,7 @@ This plugin is under development. Currently, the following features are supporte
    Array functions, variable expressions, and array expressions are supported. Specifically, support 
    for group by, order by and limit hasn't been added yet. Full-text search is also not supported. 
    Below is an example query in Flutter using the couchify plugin:
-```
+```dart
 QueryBuilder.select([
     SelectResult.expression(Expression.property("name").from("airline")),
     SelectResult.expression(Expression.property("callsign").from("airline")),
@@ -151,11 +151,11 @@ QueryBuilder.select([
 
 The QueryBuilder API is almost similar to the Couchbase Lite Android QueryBuilder API. You can
 therefore follow their [tutorial](https://docs.couchbase.com/couchbase-lite/current/java/querybuilder.html) 
-on how to use QueryBuilder and expect it to work in Flutter with almost no difference (except for the 
+on how to use `QueryBuilder` and expect it to work in Flutter with almost no difference (except for the 
 unsupported features, see below). The only major difference is that all methods that accept variable 
-number of arguments in the Android version (such as the QueryBuilder.select() method), need to be passed 
+number of arguments in the Android version (such as the `QueryBuilder.select()` method), need to be passed 
 the arguments as a list in the Flutter versions. For example, in the above query, arguments to both 
-the QueryBuilder.select and the From.join methods are encapsulated in a list rather than passing directly.
+the `QueryBuilder.select` and the `From.join` methods are encapsulated in a list rather than passing directly.
 
 ## Roadmap
 
