@@ -1,28 +1,24 @@
 part of couchify;
 
-// import 'package:securevault/couchbase/database_configuration.dart';
-// import 'document.dart';
-// import 'package:securevault/pigeon.dart';
-
 class Database {
   final String _name;
   final DatabaseConfiguration _configuration;
   late final String _id;
-  bool _opened = false;
 
-  Database(this._name, this._configuration) {
-    if (_configuration.directory.endsWith("/") ||
-        _configuration.directory.endsWith("\\")) {
-      _id = "${_configuration.directory}$_name";
+  Database._(this._name, this._configuration) {
+    if (_configuration._directory.endsWith("/") ||
+        _configuration._directory.endsWith("\\")) {
+      _id = "${_configuration._directory}$_name";
     } else {
-      _id = "${_configuration.directory}/$_name";
+      _id = "${_configuration._directory}/$_name";
     }
   }
 
-  Future _open() async {
-    if (_opened) return;
-    await CouchbaseLiteWrapper().openDatabase(_id);
-    _opened = true;
+  static Future<Database> open(
+      String name, DatabaseConfiguration configuration) async {
+    var database = Database._(name, configuration);
+    await CouchbaseLiteWrapper().openDatabase(database._id);
+    return database;
   }
 
   DatabaseConfiguration getConfig() {
@@ -30,29 +26,35 @@ class Database {
   }
 
   Future<String> getPath() async {
-    await _open();
     return await CouchbaseLiteWrapper().getDatabasePath(_id);
   }
 
   Future save(MutableDocument document) async {
-    await _open();
     await CouchbaseLiteWrapper()
         .saveDocument(_id, document.getId(), document.toMap());
-    // return Document._data(response.map((key, value) => MapEntry(key!, value)));
   }
 
   Future close() async {
-    _opened = false;
     await CouchbaseLiteWrapper().closeDatabase(_id);
   }
 
-  Future<Document> get(String id) async {
-    await _open();
+  Future delete() async {
+    await CouchbaseLiteWrapper().deleteDatabase(_id);
+  }
+
+  Future deleteDocument(Document document) async {
+    await CouchbaseLiteWrapper().deleteDocument(_id, document.getId());
+  }
+
+  Future<int> getCount() async {
+    return await CouchbaseLiteWrapper().getCount(_id);
+  }
+
+  Future<Document?> getDocument(String id) async {
     var documentMap = Map<String, dynamic>.from(
         await CouchbaseLiteWrapper().getDocument(_id, id));
     if (!documentMap.containsKey("id") || !documentMap.containsKey("data")) {
-      throw Exception(
-          "Invalid document map format received from platform channel");
+      return null;
     }
     var documentId = documentMap["id"] as String;
     var documentData = Map<String, dynamic>.from(documentMap["data"]);

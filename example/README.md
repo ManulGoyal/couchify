@@ -1,16 +1,11 @@
 # couchify_example
 
-Demonstrates how to use the couchify plugin.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+This is an example app demonstrating how to use the couchify plugin. It is a simple to-do list app
+that shows the basic CRUD operations on to-do items, stored locally in a Couchbase Lite database.
+Each to-do item comprises of a title, a list of tags, and the creation date. The app also has a
+basic search feature, that allows the user to enter a search term, which retrieves only those
+items whose title either begins with that term or whose tag list contains that term. This example
+shows how to:
+* open a new or existing database locally
+* create, retrieve, update and delete documents in the database
+* create queries using `QueryBuilder` and reading from the `ResultSet`

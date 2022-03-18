@@ -1,61 +1,55 @@
 part of couchify;
 
-// import 'package:securevault/couchbase.dart';
-
 class Expression {
-  String? operator;
-  List<Expression>? operands;
-  dynamic literalValue;
+  String? _operator;
+  List<Expression>? _operands;
+  dynamic _literalValue;
 
-  Expression();
+  Expression._();
 
-  Expression.operation(this.operator, this.operands);
+  Expression._operation(this._operator, this._operands);
 
-  Expression.literal(this.literalValue);
+  Expression._literal(this._literalValue);
 
-  dynamic serialize() {
-    if (operator == null) {
-      // if (literalValue is List)
-      //   return <dynamic>["[]", ...literalValue];
-      // else
-      if (literalValue is Map<String, Expression>)
-        return (literalValue as Map<String, Expression>)
-            .map((key, value) => MapEntry(key, value.serialize()));
-      return literalValue;
-    } else {
-      if (operands == null)
-        return <dynamic>[operator];
-      else
-        return <dynamic>[
-          operator,
-          ...(operands!.map((operand) => operand.serialize()).toList())
-        ];
+  dynamic _serialize() {
+    if (_operator == null) {
+      if (_literalValue is Map<String, Expression>) {
+        return (_literalValue as Map<String, Expression>)
+            .map((key, value) => MapEntry(key, value._serialize()));
+      }
+      return _literalValue;
     }
+    if (_operands == null) {
+      return <dynamic>[_operator];
+    }
+    return <dynamic>[
+      _operator,
+      ...(_operands!.map((operand) => operand._serialize()).toList())
+    ];
   }
 
-  // Expression add(Expression expression);
   static PropertyExpression all() {
-    return PropertyExpression(".");
+    return PropertyExpression._(".");
   }
 
   static PropertyExpression property(String property) {
-    return PropertyExpression("." + property);
+    return PropertyExpression._("." + property);
   }
 
   static Expression intValue(int value) {
-    return Expression.literal(value);
+    return Expression._literal(value);
   }
 
   static Expression string(String value) {
-    return Expression.literal(value);
+    return Expression._literal(value);
   }
 
   static Expression booleanValue(bool value) {
-    return Expression.literal(value);
+    return Expression._literal(value);
   }
 
   static Expression date(DateTime value) {
-    return Expression.literal(value.toIso8601String());
+    return Expression._literal(value.toUtc().toIso8601String());
   }
 
   static Expression value(dynamic value) {
@@ -63,42 +57,42 @@ class Expression {
     if (value is List) return list(value);
     if (value is Map<String, dynamic>) return map(value);
     if (value is DateTime) return date(value);
-    return Expression.literal(value);
+    return Expression._literal(value);
   }
 
   static Expression list(List value) {
-    return Expression.operation(
+    return Expression._operation(
         "[]", value.map((item) => Expression.value(item)).toList());
   }
 
   // returns an Expression object with value of runtime type Map<String, Expression>
   static Expression map(Map<String, dynamic> value) {
-    return Expression.literal(
+    return Expression._literal(
         value.map((key, value) => MapEntry(key, Expression.value(value))));
   }
 
   Expression equalTo(Expression expression) {
-    return Expression.operation("=", [this, expression]);
+    return Expression._operation("=", [this, expression]);
   }
 
   Expression lessThan(Expression expression) {
-    return Expression.operation("<", [this, expression]);
+    return Expression._operation("<", [this, expression]);
   }
 
   Expression greaterThan(Expression expression) {
-    return Expression.operation(">", [this, expression]);
+    return Expression._operation(">", [this, expression]);
   }
 
   Expression lessThanOrEqualTo(Expression expression) {
-    return Expression.operation("<=", [this, expression]);
+    return Expression._operation("<=", [this, expression]);
   }
 
   Expression greaterThanOrEqualTo(Expression expression) {
-    return Expression.operation(">=", [this, expression]);
+    return Expression._operation(">=", [this, expression]);
   }
 
   static Expression not(Expression expression) {
-    return Expression.operation("NOT", [expression]);
+    return Expression._operation("NOT", [expression]);
   }
 
   static Expression negated(Expression expression) {
@@ -106,79 +100,89 @@ class Expression {
   }
 
   Expression and(Expression expression) {
-    return Expression.operation("AND", [this, expression]);
+    return Expression._operation("AND", [this, expression]);
   }
 
   Expression or(Expression expression) {
-    return Expression.operation("OR", [this, expression]);
+    return Expression._operation("OR", [this, expression]);
   }
 
   Expression add(Expression expression) {
-    return Expression.operation("+", [this, expression]);
+    return Expression._operation("+", [this, expression]);
   }
 
   Expression subtract(Expression expression) {
-    return Expression.operation("-", [this, expression]);
+    return Expression._operation("-", [this, expression]);
   }
 
   Expression multiply(Expression expression) {
-    return Expression.operation("*", [this, expression]);
+    return Expression._operation("*", [this, expression]);
   }
 
   Expression notEqualTo(Expression expression) {
-    return Expression.operation("!=", [this, expression]);
+    return Expression._operation("!=", [this, expression]);
+  }
+
+  Expression like(Expression expression) {
+    return Expression._operation("LIKE", [this, expression]);
+  }
+
+  Expression regex(Expression expression) {
+    return Expression._operation("REGEXP_LIKE()", [this, expression]);
   }
 }
 
 class MetaExpression extends Expression {
-  final String property;
-  String? alias;
+  final String _property;
+  String? _alias;
 
-  MetaExpression(this.property);
+  MetaExpression._(this._property) : super._();
 
   Expression from(String alias) {
-    this.alias = alias;
+    _alias = alias;
     return this;
   }
 
   @override
-  dynamic serialize() {
-    if (alias == null)
-      return [property];
-    else
-      return [".$alias$property"];
+  dynamic _serialize() {
+    if (_alias == null) {
+      return [_property];
+    } else {
+      return [".$_alias$_property"];
+    }
   }
 }
 
 class PropertyExpression extends Expression {
-  final String property;
-  String? alias;
+  final String _property;
+  String? _alias;
 
-  PropertyExpression(this.property);
+  PropertyExpression._(this._property) : super._();
 
   Expression from(String alias) {
-    this.alias = alias;
+    _alias = alias;
     return this;
   }
 
   @override
-  dynamic serialize() {
-    if (alias == null)
-      return [property];
-    else if (property == ".")
-      return [".$alias"];
-    else
-      return [".$alias$property"];
+  dynamic _serialize() {
+    if (_alias == null) {
+      return [_property];
+    } else if (_property == ".") {
+      return [".$_alias"];
+    } else {
+      return [".$_alias$_property"];
+    }
   }
 }
 
 class VariableExpression extends Expression {
-  final String variable;
+  final String _variable;
 
-  VariableExpression(this.variable);
+  VariableExpression._(this._variable) : super._();
 
   @override
-  dynamic serialize() {
-    return ["?$variable"];
+  dynamic _serialize() {
+    return ["?$_variable"];
   }
 }

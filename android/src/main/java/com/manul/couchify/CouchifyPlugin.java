@@ -3,10 +3,20 @@ package com.manul.couchify;
 import android.content.Context;
 import android.util.Log;
 
+import java.sql.Time;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
@@ -41,73 +51,8 @@ public class CouchifyPlugin implements FlutterPlugin {
   private class CouchbaseLiteWrapperDefault implements Pigeon.CouchbaseLiteWrapper {
 
     @Override
-    public Long getValue() {
-      List<Object> ls = new ArrayList<>();
-      ls.add(45.0);
-      ls.add(Expression.intValue(30).add(Expression.intValue(37)));
-//            ls.add("manul");
-//            ls.add(Expression.intValue(56));
-//            ls.add(Expression.not(Expression.booleanValue(true)));
-      DatabaseConfiguration config = new DatabaseConfiguration();
-      config.setDirectory(applicationContext.getFilesDir() + "/tempDir");
-      try {
-        Database db = new Database("tempDb", config);
-        if (db.getDocument("testdoc2") == null) {
-          MutableDocument doc = new MutableDocument("testdoc2");
-          Log.i(TAG, doc.getId());
-          Log.i(TAG, doc.toMap().toString());
-          MutableArray arr = new MutableArray();
-          arr.addInt(45);
-          arr.addInt(67);
-          doc.setArray("arrayprop", arr);
-          db.save(doc);
-        }
-
-        MutableDocument doc = new MutableDocument();
-        Log.i(TAG, doc.getId());
-        Log.i(TAG, doc.toMap().toString());
-        doc.setString("id", "manul");
-        Log.i(TAG, doc.getId());
-        Log.i(TAG, doc.toMap().toString());
-
-        Log.i(TAG, db.getPath());
-
-//                ResultSet rs = QueryBuilder.select(SelectResult.expression(Meta.id)).from(DataSource.database(db))
-//                        .where(Expression.property("arrayprop").equalTo(Expression.list(ls))).execute();
-
-        VariableExpression variable = ArrayExpression.variable("var");
-        ResultSet rs = QueryBuilder.select(SelectResult.expression(Meta.id)).from(DataSource.database(db))
-                .where(ArrayFunction.contains(Expression.list(ls), Expression.intValue(67))).execute();
-
-//                ResultSet rs = QueryBuilder.select(SelectResult.expression(Expression.list(ls))).from(DataSource.database(db)).execute();
-        List<Result> rss = rs.allResults();
-        for (Result r : rss) {
-          Log.i(TAG, String.valueOf(r));
-          Log.i(TAG, r.getString("id"));
-//                    Log.i(TAG, r.getString("_id"));
-
-          Log.i(TAG, r.toMap().toString());
-        }
-      } catch (CouchbaseLiteException e) {
-        e.printStackTrace();
-
-      }
-
-
-      return 6L;
-    }
-
-    @Override
     public String couchbaseLiteInit() {
       CouchbaseLite.init(applicationContext);
-//      Log.i(TAG, applicationContext.getFilesDir().toString());
-//      Log.i(TAG, applicationContext.getFilesDir().getPath());
-//      Log.i(TAG, applicationContext.getFilesDir().getAbsolutePath());
-//      try {
-//        Log.i(TAG, applicationContext.getFilesDir().getCanonicalPath());
-//      } catch (Exception exception){
-//        exception.printStackTrace();
-//      }
       return applicationContext.getFilesDir().toString();
     }
 
@@ -143,6 +88,9 @@ public class CouchifyPlugin implements FlutterPlugin {
     public Map<String, Object> getDocument(String databaseId, String documentId) {
       try {
         Document document = DatabaseManager.getDatabase(databaseId).getDocument(documentId);
+        if (document == null) {
+          return Collections.emptyMap();
+        }
         Map<String, Object> documentMap = new HashMap<>();
         documentMap.put("id", document.getId());
         documentMap.put("data", document.toMap());
@@ -166,16 +114,6 @@ public class CouchifyPlugin implements FlutterPlugin {
       }
 
       try {
-//        ResultSet results = deserializedQuery.execute();
-//
-//        List<Object> resultList = new ArrayList<>();
-//
-//        for (Result result : results) {
-////          Log.i(TAG, result.toMap().getClass().getName());
-//          resultList.add(result.toMap());
-//        }
-//
-//        return resultList;
         return QueryManager.executeQuery(deserializedQuery);
       } catch (Exception e) {
         e.printStackTrace();
@@ -213,6 +151,35 @@ public class CouchifyPlugin implements FlutterPlugin {
       } catch (Exception e) {
         e.printStackTrace();
       }
+    }
+
+    @Override
+    public void deleteDatabase(String databaseId) {
+      try {
+        DatabaseManager.deleteDatabase(databaseId);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
+    @Override
+    public void deleteDocument(String databaseId, String documentId) {
+      try {
+        Database database = DatabaseManager.getDatabase(databaseId);
+        database.delete(database.getDocument(documentId));
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
+    @Override
+    public Long getCount(String databaseId) {
+      try {
+        return DatabaseManager.getDatabase(databaseId).getCount();
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      return -1L;
     }
   }
 

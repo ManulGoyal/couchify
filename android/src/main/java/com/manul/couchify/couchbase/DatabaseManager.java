@@ -40,4 +40,14 @@ public class DatabaseManager {
             throw new Exception("Database with id " + id + " isn't open");
         }
     }
+
+    public static void deleteDatabase(String id) throws Exception {
+        if (databases.containsKey(id)) {
+            Database database = databases.get(id);
+            Objects.requireNonNull(database).delete();
+            databases.remove(id);
+        } else {
+            throw new Exception("Database with id " + id + " isn't open");
+        }
+    }
 }

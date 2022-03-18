@@ -1,61 +1,61 @@
 part of couchify;
 
-// import 'package:securevault/couchbase/expression.dart';
-
 abstract class SelectResult {
-  final Expression expr;
+  final Expression _expr;
 
-  SelectResult(this.expr);
+  SelectResult._(this._expr);
 
   static SelectResultAs expression(Expression expression) {
-    return SelectResultAs(expression);
+    return SelectResultAs._(expression);
   }
 
   static SelectResultFrom all() {
-    return SelectResultFrom(Expression.all());
+    return SelectResultFrom._(Expression.all());
   }
 
   static SelectResultAs property(String property) {
-    return SelectResultAs(Expression.property(property));
+    return SelectResultAs._(Expression.property(property));
   }
 
-  dynamic serialize();
+  dynamic _serialize();
 }
 
 class SelectResultAs extends SelectResult {
-  String? alias;
+  String? _alias;
 
-  SelectResultAs(Expression expression) : super(expression);
+  SelectResultAs._(Expression expression) : super._(expression);
 
   SelectResult as(String alias) {
-    this.alias = alias;
+    _alias = alias;
     return this;
   }
 
   @override
-  dynamic serialize() {
-    if (alias == null)
-      return expr.serialize();
-    else
-      return ["AS", expr.serialize(), alias];
+  dynamic _serialize() {
+    if (_alias == null) {
+      return _expr._serialize();
+    } else {
+      return ["AS", _expr._serialize(), _alias];
+    }
   }
 }
 
 class SelectResultFrom extends SelectResult {
-  String? alias;
+  String? _alias;
 
-  SelectResultFrom(Expression expression) : super(expression);
+  SelectResultFrom._(Expression expression) : super._(expression);
 
   SelectResult from(String alias) {
-    this.alias = alias;
+    _alias = alias;
     return this;
   }
 
   @override
-  dynamic serialize() {
-    if (alias == null)
-      return expr.serialize();
-    else
-      return (expr as PropertyExpression).from(alias!).serialize();
+  dynamic _serialize() {
+    if (_alias == null) {
+      return _expr._serialize();
+    } else {
+      return (_expr as PropertyExpression).from(_alias!)._serialize();
+    }
   }
 }

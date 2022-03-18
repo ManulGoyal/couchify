@@ -4,11 +4,11 @@ part of couchify;
 // import 'package:path_provider/path_provider.dart';
 
 class DatabaseConfiguration {
-  String directory = CouchbaseLite._applicationFilesDir;
+  String _directory = CouchbaseLite._applicationFilesDir;
 
   /// set absolute path of directory to create/open the database in
   DatabaseConfiguration setDirectory(String directory) {
-    this.directory = directory;
+    _directory = directory;
     return this;
   }
 }

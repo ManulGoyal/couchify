@@ -22,29 +22,6 @@ class CouchbaseLiteWrapper {
 
   static const MessageCodec<Object?> codec = _CouchbaseLiteWrapperCodec();
 
-  Future<int> getValue() async {
-    final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.CouchbaseLiteWrapper.getValue', codec, binaryMessenger: _binaryMessenger);
-    final Map<Object?, Object?>? replyMap =
-        await channel.send(null) as Map<Object?, Object?>?;
-    if (replyMap == null) {
-      throw PlatformException(
-        code: 'channel-error',
-        message: 'Unable to establish connection on channel.',
-        details: null,
-      );
-    } else if (replyMap['error'] != null) {
-      final Map<Object?, Object?> error = (replyMap['error'] as Map<Object?, Object?>?)!;
-      throw PlatformException(
-        code: (error['code'] as String?)!,
-        message: error['message'] as String?,
-        details: error['details'],
-      );
-    } else {
-      return (replyMap['result'] as int?)!;
-    }
-  }
-
   Future<String> couchbaseLiteInit() async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.CouchbaseLiteWrapper.couchbaseLiteInit', codec, binaryMessenger: _binaryMessenger);
@@ -249,6 +226,75 @@ class CouchbaseLiteWrapper {
       );
     } else {
       return (replyMap['result'] as Map<Object?, Object?>?)!.cast<String?, Object?>();
+    }
+  }
+
+  Future<void> deleteDatabase(String arg_databaseId) async {
+    final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+        'dev.flutter.pigeon.CouchbaseLiteWrapper.deleteDatabase', codec, binaryMessenger: _binaryMessenger);
+    final Map<Object?, Object?>? replyMap =
+        await channel.send(<Object>[arg_databaseId]) as Map<Object?, Object?>?;
+    if (replyMap == null) {
+      throw PlatformException(
+        code: 'channel-error',
+        message: 'Unable to establish connection on channel.',
+        details: null,
+      );
+    } else if (replyMap['error'] != null) {
+      final Map<Object?, Object?> error = (replyMap['error'] as Map<Object?, Object?>?)!;
+      throw PlatformException(
+        code: (error['code'] as String?)!,
+        message: error['message'] as String?,
+        details: error['details'],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> deleteDocument(String arg_databaseId, String arg_documentId) async {
+    final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+        'dev.flutter.pigeon.CouchbaseLiteWrapper.deleteDocument', codec, binaryMessenger: _binaryMessenger);
+    final Map<Object?, Object?>? replyMap =
+        await channel.send(<Object>[arg_databaseId, arg_documentId]) as Map<Object?, Object?>?;
+    if (replyMap == null) {
+      throw PlatformException(
+        code: 'channel-error',
+        message: 'Unable to establish connection on channel.',
+        details: null,
+      );
+    } else if (replyMap['error'] != null) {
+      final Map<Object?, Object?> error = (replyMap['error'] as Map<Object?, Object?>?)!;
+      throw PlatformException(
+        code: (error['code'] as String?)!,
+        message: error['message'] as String?,
+        details: error['details'],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<int> getCount(String arg_databaseId) async {
+    final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+        'dev.flutter.pigeon.CouchbaseLiteWrapper.getCount', codec, binaryMessenger: _binaryMessenger);
+    final Map<Object?, Object?>? replyMap =
+        await channel.send(<Object>[arg_databaseId]) as Map<Object?, Object?>?;
+    if (replyMap == null) {
+      throw PlatformException(
+        code: 'channel-error',
+        message: 'Unable to establish connection on channel.',
+        details: null,
+      );
+    } else if (replyMap['error'] != null) {
+      final Map<Object?, Object?> error = (replyMap['error'] as Map<Object?, Object?>?)!;
+      throw PlatformException(
+        code: (error['code'] as String?)!,
+        message: error['message'] as String?,
+        details: error['details'],
+      );
+    } else {
+      return (replyMap['result'] as int?)!;
     }
   }
 }

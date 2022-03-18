@@ -28,7 +28,6 @@ public class Pigeon {
 
   /** Generated interface from Pigeon that represents a handler of messages from Flutter.*/
   public interface CouchbaseLiteWrapper {
-    Long getValue();
     String couchbaseLiteInit();
     String getDatabasePath(String id);
     void openDatabase(String id);
@@ -38,6 +37,9 @@ public class Pigeon {
     Map<String, Object> resultSetNext(String resultSetId);
     void saveDocument(String databaseId, String documentId, Map<String, Object> document);
     Map<String, Object> getDocument(String databaseId, String documentId);
+    void deleteDatabase(String databaseId);
+    void deleteDocument(String databaseId, String documentId);
+    Long getCount(String databaseId);
 
     /** The codec used by CouchbaseLiteWrapper. */
     static MessageCodec<Object> getCodec() {
@@ -46,25 +48,6 @@ public class Pigeon {
 
     /** Sets up an instance of `CouchbaseLiteWrapper` to handle messages through the `binaryMessenger`. */
     static void setup(BinaryMessenger binaryMessenger, CouchbaseLiteWrapper api) {
-      {
-        BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.CouchbaseLiteWrapper.getValue", getCodec());
-        if (api != null) {
-          channel.setMessageHandler((message, reply) -> {
-            Map<String, Object> wrapped = new HashMap<>();
-            try {
-              Long output = api.getValue();
-              wrapped.put("result", output);
-            }
-            catch (Error | RuntimeException exception) {
-              wrapped.put("error", wrapError(exception));
-            }
-            reply.reply(wrapped);
-          });
-        } else {
-          channel.setMessageHandler(null);
-        }
-      }
       {
         BasicMessageChannel<Object> channel =
             new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.CouchbaseLiteWrapper.couchbaseLiteInit", getCodec());
@@ -277,6 +260,82 @@ public class Pigeon {
                 throw new NullPointerException("documentIdArg unexpectedly null.");
               }
               Map<String, Object> output = api.getDocument(databaseIdArg, documentIdArg);
+              wrapped.put("result", output);
+            }
+            catch (Error | RuntimeException exception) {
+              wrapped.put("error", wrapError(exception));
+            }
+            reply.reply(wrapped);
+          });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.CouchbaseLiteWrapper.deleteDatabase", getCodec());
+        if (api != null) {
+          channel.setMessageHandler((message, reply) -> {
+            Map<String, Object> wrapped = new HashMap<>();
+            try {
+              ArrayList<Object> args = (ArrayList<Object>)message;
+              String databaseIdArg = (String)args.get(0);
+              if (databaseIdArg == null) {
+                throw new NullPointerException("databaseIdArg unexpectedly null.");
+              }
+              api.deleteDatabase(databaseIdArg);
+              wrapped.put("result", null);
+            }
+            catch (Error | RuntimeException exception) {
+              wrapped.put("error", wrapError(exception));
+            }
+            reply.reply(wrapped);
+          });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.CouchbaseLiteWrapper.deleteDocument", getCodec());
+        if (api != null) {
+          channel.setMessageHandler((message, reply) -> {
+            Map<String, Object> wrapped = new HashMap<>();
+            try {
+              ArrayList<Object> args = (ArrayList<Object>)message;
+              String databaseIdArg = (String)args.get(0);
+              if (databaseIdArg == null) {
+                throw new NullPointerException("databaseIdArg unexpectedly null.");
+              }
+              String documentIdArg = (String)args.get(1);
+              if (documentIdArg == null) {
+                throw new NullPointerException("documentIdArg unexpectedly null.");
+              }
+              api.deleteDocument(databaseIdArg, documentIdArg);
+              wrapped.put("result", null);
+            }
+            catch (Error | RuntimeException exception) {
+              wrapped.put("error", wrapError(exception));
+            }
+            reply.reply(wrapped);
+          });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.CouchbaseLiteWrapper.getCount", getCodec());
+        if (api != null) {
+          channel.setMessageHandler((message, reply) -> {
+            Map<String, Object> wrapped = new HashMap<>();
+            try {
+              ArrayList<Object> args = (ArrayList<Object>)message;
+              String databaseIdArg = (String)args.get(0);
+              if (databaseIdArg == null) {
+                throw new NullPointerException("databaseIdArg unexpectedly null.");
+              }
+              Long output = api.getCount(databaseIdArg);
               wrapped.put("result", output);
             }
             catch (Error | RuntimeException exception) {

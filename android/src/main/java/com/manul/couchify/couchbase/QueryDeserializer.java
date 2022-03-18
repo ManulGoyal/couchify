@@ -16,14 +16,9 @@ import java.util.Set;
 
 public class QueryDeserializer {
     private static final String TAG = "QueryDeserializer";
-//    private final Context applicationContext;
 
     Set<String> aliases = new HashSet<>();
     List<Join> joinItems = new ArrayList<>();
-
-//    public QueryDeserializer(Context context) {
-//        applicationContext = context;
-//    }
 
     private Expression deserializeArrayExpression(String operator, List<Object> expression) throws Exception {
         if (expression.size() != 4) 
@@ -60,6 +55,11 @@ public class QueryDeserializer {
                 if (expression.size() != 2)
                     throw new Exception("Invalid ARRAY_LENGTH() expression syntax");
                 return ArrayFunction.length(deserializeExpression(expression.get(1)));
+            case "REGEXP_LIKE()":
+                if (expression.size() != 3)
+                    throw new Exception("Invalid REGEXP_LIKE() expression syntax");
+                return deserializeExpression(expression.get(1))
+                        .regex(deserializeExpression(expression.get(2)));
             default:
                 throw new Exception("Unknown function in expression: " + operator);
         }
@@ -132,6 +132,11 @@ public class QueryDeserializer {
                     throw new Exception("Invalid notEqualTo expression syntax");
                 return deserializeExpression(expression.get(1))
                         .notEqualTo(deserializeExpression(expression.get(2)));
+            case "LIKE":
+                if (expression.size() != 3)
+                    throw new Exception("Invalid LIKE expression syntax");
+                return deserializeExpression(expression.get(1))
+                        .like(deserializeExpression(expression.get(2)));
             case "[]":
 //                if (expression.size() == 1)
 //                    return Expression.list(Collections.emptyList());

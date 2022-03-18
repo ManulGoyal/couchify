@@ -1,45 +1,44 @@
 part of couchify;
 
-// import 'expression.dart';
-
 class ArrayExpression {
   static ArrayExpressionIn any(VariableExpression variable) {
-    return ArrayExpressionIn("ANY", variable);
+    return ArrayExpressionIn._("ANY", variable);
   }
 
   static ArrayExpressionIn anyAndEvery(VariableExpression variable) {
-    return ArrayExpressionIn("ANY AND EVERY", variable);
+    return ArrayExpressionIn._("ANY AND EVERY", variable);
   }
 
   static ArrayExpressionIn every(VariableExpression variable) {
-    return ArrayExpressionIn("EVERY", variable);
+    return ArrayExpressionIn._("EVERY", variable);
   }
 
   static VariableExpression variable(String name) {
-    return VariableExpression(name);
+    return VariableExpression._(name);
   }
 }
 
 class ArrayExpressionIn {
-  final String operator;
-  final VariableExpression variable;
+  final String _operator;
+  final VariableExpression _variable;
 
-  ArrayExpressionIn(this.operator, this.variable);
+  ArrayExpressionIn._(this._operator, this._variable);
 
   ArrayExpressionSatisfies inside(Expression expression) {
-    return ArrayExpressionSatisfies(operator, variable, expression);
+    return ArrayExpressionSatisfies._(_operator, _variable, expression);
   }
 }
 
 class ArrayExpressionSatisfies {
-  final String operator;
-  final VariableExpression variable;
-  final Expression arrayExpression;
+  final String _operator;
+  final VariableExpression _variable;
+  final Expression _arrayExpression;
 
-  ArrayExpressionSatisfies(this.operator, this.variable, this.arrayExpression);
+  ArrayExpressionSatisfies._(
+      this._operator, this._variable, this._arrayExpression);
 
   Expression satisfies(Expression expression) {
-    return Expression.operation(operator,
-        [Expression.string(variable.variable), arrayExpression, expression]);
+    return Expression._operation(_operator,
+        [Expression.string(_variable._variable), _arrayExpression, expression]);
   }
 }

@@ -1,17 +1,14 @@
 part of couchify;
 
-// import 'package:securevault/couchbase/array.dart';
-// import 'package:securevault/couchbase/dictionary.dart';
-// import 'package:uuid/uuid.dart';
-
-class Document {
+class Document extends Iterable<String> {
   late final Map<String, dynamic> _data;
   late final String _id;
 
   Document._();
   Document._data(this._id, this._data);
 
-  bool contains(String key) {
+  @override
+  bool contains(Object? key) {
     return _data.containsKey(key);
   }
 
@@ -27,66 +24,64 @@ class Document {
     return _id;
   }
 
-  bool isDeleted() {
-    return _data["_deleted"] as bool;
+  bool? getBoolean(String key) {
+    return _data[key] is bool ? _data[key] : null;
   }
 
-  int getSequence() {
-    return _data["_sequence"] as int;
+  num? getNumber(String key) {
+    return _data[key] is num ? _data[key] : null;
   }
 
-  bool getBoolean(String key) {
-    return _data[key] as bool;
+  int? getInt(String key) {
+    return _data[key] is int ? _data[key] : null;
   }
 
-  num getNumber(String key) {
-    return _data[key] as num;
-  }
-
-  int getInt(String key) {
-    return _data[key] as int;
-  }
-
-  int getLong(String key) {
+  int? getLong(String key) {
     return getInt(key);
   }
 
-  double getDouble(String key) {
-    return _data[key] as double;
+  double? getDouble(String key) {
+    return _data[key] is double ? _data[key] : null;
   }
 
-  double getFloat(String key) {
+  double? getFloat(String key) {
     return getDouble(key);
   }
 
-  DateTime getDate(String key) {
-    return DateTime.parse(_data[key] as String);
+  DateTime? getDate(String key) {
+    if (_data[key] is String) {
+      try {
+        var date = DateTime.parse(_data[key] as String);
+        if (date.isUtc) {
+          return date;
+        } else {
+          return null;
+        }
+      } on FormatException {
+        return null;
+      }
+    }
+    return null;
   }
 
-  String getString(String key) {
-    return _data[key] as String;
+  String? getString(String key) {
+    return _data[key] is String ? _data[key] : null;
   }
 
-  Array getArray(String key) {
-    return _data[key] as Array;
+  Array? getArray(String key) {
+    return _data[key] is List ? Array._data(_data[key]) : null;
   }
 
-  Dictionary getDictionary(String key) {
-    return _data[key] as Dictionary;
+  Dictionary? getDictionary(String key) {
+    return _data[key] is Map<String, dynamic>
+        ? Dictionary._data(_data[key])
+        : null;
   }
 
   dynamic getValue(String key) {
+    if (_data[key] is List) return getArray(key);
+    if (_data[key] is Map<String, dynamic>) return getDictionary(key);
     return _data[key];
-  }
-
-  dynamic _clone(dynamic obj) {
-    if (obj is List) {
-      return obj.map((e) => _clone(e)).toList();
-    } else if (obj is Map<String, dynamic>) {
-      return obj.map((k, v) => MapEntry(k, _clone(v)));
-    } else {
-      return obj;
-    }
   }
 
   Map<String, dynamic> toMap() {
@@ -96,12 +91,15 @@ class Document {
   MutableDocument toMutable() {
     return MutableDocument.idAndData(_id, _data);
   }
+
+  @override
+  Iterator<String> get iterator => _data.keys.iterator;
 }
 
 class MutableDocument extends Document {
   MutableDocument() : super._() {
     _data = <String, dynamic>{};
-    _id = Uuid().v4();
+    _id = const Uuid().v4();
   }
 
   MutableDocument.id(String id) : super._() {
@@ -111,7 +109,7 @@ class MutableDocument extends Document {
 
   MutableDocument.data(Map<String, dynamic> data) : super._() {
     _data = _clone(data);
-    _id = Uuid().v4();
+    _id = const Uuid().v4();
   }
 
   MutableDocument.idAndData(String id, Map<String, dynamic> data) : super._() {
@@ -119,8 +117,57 @@ class MutableDocument extends Document {
     _id = id;
   }
 
-  MutableDocument setValue(String key, dynamic value) {
+  MutableDocument setBoolean(String key, bool value) {
     _data[key] = value;
+    return this;
+  }
+
+  MutableDocument setNumber(String key, num value) {
+    _data[key] = value;
+    return this;
+  }
+
+  MutableDocument setInt(String key, int value) {
+    _data[key] = value;
+    return this;
+  }
+
+  MutableDocument setLong(String key, int value) {
+    return setInt(key, value);
+  }
+
+  MutableDocument setDouble(String key, double value) {
+    _data[key] = value;
+    return this;
+  }
+
+  MutableDocument setFloat(String key, double value) {
+    return setDouble(key, value);
+  }
+
+  MutableDocument setDate(String key, DateTime value) {
+    _data[key] = value.toUtc().toIso8601String();
+    return this;
+  }
+
+  MutableDocument setString(String key, String value) {
+    _data[key] = value;
+    return this;
+  }
+
+  MutableDocument setArray(String key, Array value) {
+    _data[key] = _clone(value._data);
+    return this;
+  }
+
+  MutableDocument setDictionary(String key, Dictionary value) {
+    _data[key] = _clone(value._data);
+    return this;
+  }
+
+  MutableDocument setValue(String key, dynamic value) {
+    if (value is DateTime) return setDate(key, value);
+    _data[key] = _clone(value);
     return this;
   }
 }

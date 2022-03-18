@@ -1,20 +1,15 @@
 part of couchify;
 
-// import 'package:securevault/couchbase/query.dart';
-// import 'package:securevault/couchbase/join.dart';
-// import 'package:securevault/couchbase/where.dart';
-// import 'package:securevault/couchbase/expression.dart';
-
 class Joins extends Query {
-  final List<Join> joins;
+  final List<Join> _joins;
 
-  Joins(List serializedQuery, this.joins) : super(serializedQuery) {
-    joins.forEach((join) {
-      (serializedQuery[1]["FROM"] as List).add(join.serialize());
-    });
+  Joins._(List serializedQuery, this._joins) : super(serializedQuery) {
+    for (var join in _joins) {
+      (serializedQuery[1]["FROM"] as List).add(join._serialize());
+    }
   }
 
   Where where(Expression expression) {
-    return Where(serializedQuery, expression);
+    return Where._(_serializedQuery, expression);
   }
 }

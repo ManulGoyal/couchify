@@ -3,31 +3,31 @@ part of couchify;
 // import 'package:securevault/couchbase/database.dart';
 
 abstract class DataSource {
-  final Database db;
+  final Database _db;
 
-  DataSource(this.db);
+  DataSource(this._db);
 
   static DataSourceAs database(Database database) {
-    return DataSourceAs(database);
+    return DataSourceAs._(database);
   }
 
-  Map<String, dynamic> serialize();
+  Map<String, dynamic> _serialize();
 }
 
 class DataSourceAs extends DataSource {
-  String? alias;
+  String? _alias;
 
-  DataSourceAs(Database database) : super(database);
+  DataSourceAs._(Database database) : super(database);
 
   DataSource as(String alias) {
-    this.alias = alias;
+    _alias = alias;
     return this;
   }
 
   @override
-  Map<String, dynamic> serialize() {
-    var value = <String, dynamic>{"COLLECTION": db._id};
-    if (alias != null) value["AS"] = alias;
+  Map<String, dynamic> _serialize() {
+    var value = <String, dynamic>{"COLLECTION": _db._id};
+    if (_alias != null) value["AS"] = _alias;
     return value;
   }
 }
